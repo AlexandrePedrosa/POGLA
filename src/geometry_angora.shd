@@ -16,7 +16,7 @@ uniform mat4 model_matrix;
 uniform mat4 view_matrix;
 uniform mat4 projection_matrix;
 
-const vec4 down = normalize(projection_matrix * view_matrix * model_matrix * vec4(0.0, -1.0, 0.0, 0.0));
+vec4 down = normalize(projection_matrix * view_matrix * model_matrix * vec4(0.0, -1.0, 0.0, 0.0));
 const float length_constant = 0.005;
 const float drooping_constant = 0.5;
 
