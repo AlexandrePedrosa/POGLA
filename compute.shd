@@ -1,0 +1,27 @@
+#version 450
+
+layout (local_size_x = 1024) in;
+
+struct tri_f {
+    float x;
+    float y;
+    float z;
+};
+
+layout (std430, binding=0) buffer point_pos_buffer
+{
+    tri_f points[];
+};
+layout (std430, binding=1) buffer normal_buffer
+{
+    tri_f norms[];
+};
+
+uniform float anim_time;
+const float bloating_constant = 0.01;
+
+void main(void) {
+    points[gl_GlobalInvocationID.x].x += bloating_constant * norms[gl_GlobalInvocationID.x].x * sin(anim_time);
+    points[gl_GlobalInvocationID.x].y += bloating_constant * norms[gl_GlobalInvocationID.x].y * sin(anim_time);
+    points[gl_GlobalInvocationID.x].z += bloating_constant * norms[gl_GlobalInvocationID.x].z * sin(anim_time);
+}

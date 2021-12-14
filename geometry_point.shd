@@ -1,0 +1,18 @@
+#version 450
+
+layout( triangles ) in;
+layout( points, max_vertices = 1 ) out;
+
+in vec3 color[3];
+in float diffuse[3];
+out vec3 geo_color;
+out float frag_diffuse;
+
+void main() {
+    vec4 center = (gl_in[0].gl_Position + gl_in[1].gl_Position + gl_in[2].gl_Position) / 3;
+    gl_Position = center;
+    geo_color = (color[0] + color[1] + color[2]) / 3;
+    frag_diffuse = (diffuse[0] + diffuse[1] + diffuse[2]) / 3;
+    EmitVertex();
+    EndPrimitive();
+}

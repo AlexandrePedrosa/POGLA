@@ -1,0 +1,39 @@
+#version 450
+
+const int fur_length = 20;
+
+layout( triangles ) in;
+layout( line_strip, max_vertices = fur_length + 1 ) out;
+
+in vec4 gs_normal[3];
+
+in vec3 color[3];
+in float diffuse[3];
+out vec3 geo_color;
+out float frag_diffuse;
+
+uniform mat4 model_matrix;
+uniform mat4 view_matrix;
+uniform mat4 projection_matrix;
+
+const vec4 down = normalize(projection_matrix * view_matrix * model_matrix * vec4(0.0, -1.0, 0.0, 0.0));
+const float length_constant = 0.005;
+const float drooping_constant = 0.5;
+
+void main() {
+    vec4 base = (gl_in[0].gl_Position + gl_in[1].gl_Position + gl_in[2].gl_Position) / 3;
+    gl_Position = base;
+    geo_color = (color[0] + color[1] + color[2]) / 3;
+    frag_diffuse = (diffuse[0] + diffuse[1] + diffuse[2]) / 3;
+    EmitVertex();
+    for (int i = 0; i < fur_length; i++)
+    {
+        vec4 droop = down * i * drooping_constant;
+        float segment_length = i * length_constant;
+        vec4 tip = normalize(((gs_normal[0] + gs_normal[1] + gs_normal[2]) / 3) + droop) * segment_length + base;
+        gl_Position = tip;
+        EmitVertex();
+        base = tip;
+    }
+    EndPrimitive();
+}

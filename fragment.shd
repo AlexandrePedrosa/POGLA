@@ -1,0 +1,11 @@
+#version 450
+
+in vec3 geo_color;
+in float frag_diffuse;
+layout(location=0) out vec4 output_color;
+
+uniform mat4 model_matrix;
+
+void main() {
+    output_color = frag_diffuse * vec4(geo_color, 1.0);
+}
