@@ -246,7 +246,8 @@ void init_object_vbo() {
 }
 
 std::string load(const std::string &filename) {
-    std::ifstream input_src_file(filename, std::ios::in);
+    std::string path = "src/" + filename;
+    std::ifstream input_src_file(path, std::ios::in);
     std::string ligne;
     std::string file_content="";
     if (input_src_file.fail()) {
