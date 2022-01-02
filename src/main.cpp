@@ -7,6 +7,7 @@
 
 #include "matrix4.hh"
 #include "bunny.hh"
+#include "OBJloader.hh"
 
 static const std::vector<GLfloat> wave_vertex_buffer_data {
     -0.5, 0.0, +0.5,

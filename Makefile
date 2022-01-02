@@ -9,9 +9,10 @@
 CC = g++
 
 CPP_FILES = src/matrix4.cpp
-CPP_FILES +=
+CPP_FILES += src/OBJloader.cpp
 HXX_FILES = src/bunny.hh
 HXX_FILES += src/matrix4.hh
+HXX_FILES += src/OBJloader.hh
 OBJ_FILES = $(CPP_FILES:.cpp=.o)
 
 CXX_FLAGS += -Wall -Wextra -O3 -g -std=c++11
