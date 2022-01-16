@@ -3,17 +3,19 @@
 layout( triangles ) in;
 layout( triangle_strip, max_vertices = 3) out;
 
-in vec4 gs_normal[3];
+in vec3 gs_normal[3];
 in vec3 color[3];
-in float diffuse[3];
-out float frag_diffuse;
+in vec3 gs_position[3];
+out vec3 fr_normal;
 out vec3 geo_color;
+out vec3 fr_position;
 
 void main() {
     for (int i = 0; i < 3; i++) {
         gl_Position = gl_in[i].gl_Position;
         geo_color = color[i];
-        frag_diffuse = diffuse[i];
+        fr_position = gs_position[i];
+        fr_normal = gs_normal[i];
         EmitVertex();
     }
     EndPrimitive();

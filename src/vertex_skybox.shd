@@ -1,0 +1,15 @@
+#version 450
+
+in vec3 position;
+
+out vec3 tex_coords;
+
+uniform mat4 view_matrix;
+uniform mat4 projection_matrix;
+
+void main() {
+    // on n'utilise pas la model matrix pour que la skybox soit toujours centree sur la camera
+    gl_Position = projection_matrix * view_matrix * vec4(position, 1.0);
+    // les coordonees textures sont simplissimes pour le samplercube
+    tex_coords = position;
+}

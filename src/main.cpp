@@ -28,7 +28,7 @@ void init_glut(int &argc, char *argv[]) {
     glutInitWindowSize(1024, 1024);
     glutInitWindowPosition ( 100, 100 );
     glutCreateWindow("Shader Programming");
-    glutDisplayFunc(display_wave);
+    glutDisplayFunc(display_bunny);
     glutReshapeFunc(window_resize);
 }
 
@@ -57,9 +57,9 @@ void mouse_callback(int x, int y) {
     //glutWarpPointer(width/2, height/2); TEST_OPENGL_ERROR();
     //std::cout << "move_x = " << move_x << " move_y = " << move_y << std::endl;
     if (move_x != 0)
-        scene.rotate_scene(move_x, 0.0f, 1.0f, 0.0f);
+        scene.yaw_camera(move_x);
     if (move_y != 0)
-        scene.rotate_scene(move_y, 1.0f, 0.0f, 0.0f);
+        scene.pitch_camera(move_y);
 }
 
 void click_callback(int button, int state, int x, int y) {
@@ -87,6 +87,19 @@ void keyboard_callback(unsigned char key, int x, int y) {
     glutPostRedisplay();
 }
 
+void special_input_callback(int key, int x, int y) {
+    (void) x;
+    (void) y;
+    GLfloat speed = 0.05;
+    if (key == GLUT_KEY_UP)
+        scene.move_camera(speed, CAMERA_FORWARD);
+    else if (key == GLUT_KEY_DOWN)
+        scene.move_camera(speed, CAMERA_BACKWARD);
+    else if (key == GLUT_KEY_LEFT)
+        scene.move_camera(speed, CAMERA_LEFT);
+    else if (key == GLUT_KEY_RIGHT)
+        scene.move_camera(speed, CAMERA_RIGHT);
+}
 
 void timer_bunny(int value) {
     (void) value;
@@ -100,16 +113,14 @@ int main(int argc, char *argv[]) {
     if (!init_glew())
         std::exit(-1);
     init_GL();
-    if (!scene.init_shaders_bunny())
+    if (!scene.init_scene_elements()) {
         std::exit(-1);
-    if (!scene.init_shaders_wave())
-        std::exit(-1);
-    scene.init_object_vbo_bunnywave();
+    }
     glPatchParameteri(GL_PATCH_VERTICES, 4);TEST_OPENGL_ERROR();
     glutTimerFunc(16, timer_bunny, 0);
     glutMouseFunc(click_callback);
     glutMotionFunc(mouse_callback);
-    glutDisplayFunc(display_wave);
     glutKeyboardFunc(keyboard_callback);
+    glutSpecialFunc(special_input_callback);
     glutMainLoop();
 }

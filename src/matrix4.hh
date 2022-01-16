@@ -11,9 +11,27 @@ namespace mygl {
         point3(GLfloat a, GLfloat b, GLfloat c) {
             x = a; y = b; z = c;
         }
+        GLfloat buff[3];
         GLfloat x;
         GLfloat y;
         GLfloat z;
+        GLfloat *data() {
+            buff[0] = x;
+            buff[1] = y;
+            buff[2] = z;
+            return buff;
+        }
+        void operator+=(const point3 &rhs) {
+            x += rhs.x;
+            y += rhs.y;
+            z += rhs.z;
+        }
+        void operator*=(const GLfloat &rhs) {
+            x *= rhs;
+            y *= rhs;
+            z *= rhs;
+        }
+
     };
     
     struct point4 {
@@ -43,7 +61,6 @@ namespace mygl {
 }
 
 std::ostream& operator<<(std::ostream& out, const mygl::matrix4& m);
-
 void frustum(mygl::matrix4& mat,
     const GLfloat& left, const GLfloat& right,
     const GLfloat& bottom, const GLfloat& top,
