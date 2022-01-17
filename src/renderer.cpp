@@ -6,11 +6,15 @@
 
 #include "renderer.hh"
 #include "test_opengl_error.hh"
+#include "load_shader.hh"
 
 Renderer::Renderer() {}
 
-void Renderer::init_render_elements() {
+bool Renderer::init_render_elements() {
     init_color_FBO();
+    if (!init_shader_blur(blur_prog_id))
+        return false;
+    return true;
 }
 
 void Renderer::init_color_FBO() {
@@ -38,6 +42,8 @@ void Renderer::init_color_FBO() {
         // on lie les deux textures aux color attachments
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, color_buffer_textures[i], 0);TEST_OPENGL_ERROR();
     }
+    glBindImageTexture(0, color_buffer_textures[1], 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);
+    glBindImageTexture(1, color_buffer_textures[0], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8UI);
     // on genere le depth buffer
     glGenRenderbuffers(1, &depth_buffer);TEST_OPENGL_ERROR();
     glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);TEST_OPENGL_ERROR();
@@ -49,6 +55,65 @@ void Renderer::init_color_FBO() {
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cerr << "Framebuffer not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);TEST_OPENGL_ERROR();
+}
+
+bool Renderer::init_shader_blur(GLuint *program_id) {
+    std::string compute_src[2] = {load("compute_blur.shd"),load("compute_blur_vertical.shd")};
+    GLuint shader_id[2];
+    GLint compile_status = GL_TRUE;
+
+    char *compute_shd_src[2] = {(char*)std::malloc(compute_src[0].length()*sizeof(char)),
+                                (char*)std::malloc(compute_src[1].length()*sizeof(char))};
+    for (int i = 0; i < 2; i++) {
+        compute_src[i].copy(compute_shd_src[i], compute_src[i].length());
+        shader_id[i] = glCreateShader(GL_COMPUTE_SHADER); TEST_OPENGL_ERROR();
+        glShaderSource(shader_id[i], 1, (const GLchar**)&(compute_shd_src[i]), 0);TEST_OPENGL_ERROR();
+        glCompileShader(shader_id[i]);TEST_OPENGL_ERROR();
+        glGetShaderiv(shader_id[i], GL_COMPILE_STATUS, &compile_status); TEST_OPENGL_ERROR();
+        if(compile_status != GL_TRUE) {
+            GLint log_size;
+            char *shader_log;
+            glGetShaderiv(shader_id[i], GL_INFO_LOG_LENGTH, &log_size);
+            shader_log = (char*)std::malloc(log_size+1); /* +1 pour le caractere de fin de chaine '\0' */
+            if(shader_log != 0) {
+                glGetShaderInfoLog(shader_id[i], log_size, &log_size, shader_log);
+                std::cerr << "SHADER COMPUTE: " << shader_log << std::endl;
+                std::free(shader_log);
+            }
+            std::free(compute_shd_src[i]);
+            glDeleteShader(shader_id[i]);
+            return false;
+        }
+        std::free(compute_shd_src[i]);
+        GLint link_status=GL_TRUE;
+        program_id[i] = glCreateProgram();TEST_OPENGL_ERROR();
+        if (program_id[i] == 0) return false;
+        glAttachShader(program_id[i], shader_id[i]);TEST_OPENGL_ERROR();
+        glLinkProgram(program_id[i]);TEST_OPENGL_ERROR();
+        glGetProgramiv(program_id[i], GL_LINK_STATUS, &link_status);
+        if (link_status!=GL_TRUE) {
+            GLint log_size;
+            char *program_log;
+            glGetProgramiv(program_id[i], GL_INFO_LOG_LENGTH, &log_size);
+            program_log = (char*)std::malloc(log_size+1); /* +1 pour le caractere de fin de chaine '\0' */
+            if(program_log != 0) {
+                glGetProgramInfoLog(*program_id, log_size, &log_size, program_log);
+                std::cerr << "Program " << program_log << std::endl;
+                std::free(program_log);
+            }
+            glDeleteProgram(program_id[i]);TEST_OPENGL_ERROR();
+            glDeleteShader(shader_id[i]);TEST_OPENGL_ERROR();
+            program_id[i] = 0;
+            return false;
+        }
+    }
+    //glUseProgram(*program_id);TEST_OPENGL_ERROR();
+    //int uni_loc = glGetUniformLocation(*program_id, "input_image");
+    //glUniform1i(uni_loc, 0);
+    //uni_loc = glGetUniformLocation(*program_id, "output_image");
+    //glUniform1i(uni_loc, 1);
+    return true;
+
 }
 
 Renderer renderer = Renderer();

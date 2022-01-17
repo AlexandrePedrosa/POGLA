@@ -3,7 +3,6 @@
 //
 
 #include <iostream>
-#include <fstream>
 #include <math.h>
 #define PI 3.14159265
 
@@ -12,6 +11,7 @@
 #include "test_opengl_error.hh"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
+#include "load_shader.hh"
 
 Scene::Scene() {
     model = mygl::matrix4::identity();
@@ -19,22 +19,6 @@ Scene::Scene() {
     camera_pitch = 0.0f;
 }
 
-std::string load(const std::string &filename) { //loads shader as a string from src directory
-    std::string path = "src/" + filename;
-    std::ifstream input_src_file(path, std::ios::in);
-    std::string ligne;
-    std::string file_content="";
-    if (input_src_file.fail()) {
-        std::cerr << "FAIL\n";
-        return "";
-    }
-    while(getline(input_src_file, ligne)) {
-        file_content = file_content + ligne + "\n";
-    }
-    file_content += '\0';
-    input_src_file.close();
-    return file_content;
-}
 
 bool Scene::init_scene_elements() {
     if (!init_shaders_bunny()

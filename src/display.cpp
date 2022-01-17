@@ -103,7 +103,7 @@ void display_bunny() {
     frustum(proj, -zoom * ratio, zoom * ratio, -zoom, zoom, 0.1f, 100.0f);
 
     glBindFramebuffer(GL_FRAMEBUFFER, renderer.color_FBO);TEST_OPENGL_ERROR();
-    glViewport(0, 0, width, height);TEST_OPENGL_ERROR();
+    //glViewport(0, 0, width, height);TEST_OPENGL_ERROR();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);TEST_OPENGL_ERROR();
     glDepthMask(GL_FALSE);TEST_OPENGL_ERROR(); // on desactive la depth pour que la skybox s'affiche derriere tout
     glUseProgram(scene.skybox_prog_id);TEST_OPENGL_ERROR();
@@ -135,6 +135,13 @@ void display_bunny() {
         give_uniform_bunny(scene.bunny_prog_id[3], proj);
         glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
     }
+
+    glUseProgram(renderer.blur_prog_id[0]);TEST_OPENGL_ERROR();
+    glDispatchCompute(width / 1024 + 1, height, 1); TEST_OPENGL_ERROR();
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    glUseProgram(renderer.blur_prog_id[1]);
+    glDispatchCompute(width, height / 1024 + 1, 1); TEST_OPENGL_ERROR();
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
     glBindVertexArray(0);TEST_OPENGL_ERROR();
     glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.color_FBO);

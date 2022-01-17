@@ -114,10 +114,9 @@ int main(int argc, char *argv[]) {
     if (!init_glew())
         std::exit(-1);
     init_GL();
-    if (!scene.init_scene_elements()) {
+    if (!scene.init_scene_elements() ||
+        !renderer.init_render_elements())
         std::exit(-1);
-    }
-    renderer.init_render_elements();
     glPatchParameteri(GL_PATCH_VERTICES, 4);TEST_OPENGL_ERROR();
     glutTimerFunc(16, timer_bunny, 0);
     glutMouseFunc(click_callback);

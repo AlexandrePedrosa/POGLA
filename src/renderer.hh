@@ -9,12 +9,14 @@
 class Renderer {
 public:
     Renderer();
-    void init_render_elements();
+    bool init_render_elements();
     unsigned int color_FBO; // le framebuffer du premier rendu
     unsigned int color_buffer_textures[2]; // les deux textures utilisees pour le premier rendu
     unsigned int depth_buffer; // le depth buffer utilise pour le premier rendu
+    GLuint blur_prog_id[2];
 private:
     void init_color_FBO();
+    bool init_shader_blur(GLuint *prog_id);
 };
 
 extern Renderer renderer;
