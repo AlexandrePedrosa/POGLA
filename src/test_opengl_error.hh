@@ -1,4 +1,5 @@
-#define TEST_OPENGL_ERROR()                                                             \
+#include <iostream>
+#define TEST_OPENGL_ERROR() \
   do {                                                                                  \
     GLenum err = glGetError();                                                          \
     if (err != GL_NO_ERROR) std::cerr << "OpenGL ERROR: "                               \

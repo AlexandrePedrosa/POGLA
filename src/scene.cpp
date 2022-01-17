@@ -40,7 +40,8 @@ bool Scene::init_scene_elements() {
     if (!init_shaders_bunny()
         //|| !init_shaders_wave()
         || !init_shader_skybox(&skybox_prog_id)
-        || !init_cubemap_texture())
+        || !init_cubemap_texture()
+        || !init_threshold_texture())
         return false;
     init_object_vbo_bunnywave();
     init_object_vbo_skybox();
@@ -48,16 +49,41 @@ bool Scene::init_scene_elements() {
     return true;
 }
 
+bool Scene::init_threshold_texture() {
+    glGenTextures(1, &threshold_tex_id);TEST_OPENGL_ERROR(); // on cree la texture
+    glActiveTexture(GL_TEXTURE1);TEST_OPENGL_ERROR();
+    glBindTexture(GL_TEXTURE_1D, threshold_tex_id);TEST_OPENGL_ERROR(); // c'est une texture 1D
+    int width;
+    int height;
+    int nb_channels;
+    std::string filename = "texture/threshold.jpg";
+    unsigned char *image_data = stbi_load(filename.c_str(), &width, &height, &nb_channels, 0);
+    if (!image_data) { // echec chargement
+        stbi_image_free(image_data);
+        std::cerr << "Failed to load texture, path" << filename << std::endl;
+        return false;
+    }
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RED, width, 0,
+                 GL_RED, GL_UNSIGNED_BYTE, image_data);TEST_OPENGL_ERROR();
+    stbi_image_free(image_data);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);TEST_OPENGL_ERROR();
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);TEST_OPENGL_ERROR();
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);TEST_OPENGL_ERROR();
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);TEST_OPENGL_ERROR();
+    return true;
+}
+
 bool Scene::init_cubemap_texture() { // cree la cubemap
     glGenTextures(1, &cubemap_tex_id); // on cree la texture
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_tex_id); // c'est une cubemap
+    std::string dir = "texture/volcano/"; // on peut changer la skybox facilement
     std::vector<std::string> filenames { // texture de Emil Persson
-        "texture/posx.jpg",
-        "texture/negx.jpg",
-        "texture/posy.jpg",
-        "texture/negy.jpg",
-        "texture/posz.jpg",
-        "texture/negz.jpg"
+        dir + "posx.jpg",
+        dir + "negx.jpg",
+        dir + "posy.jpg",
+        dir + "negy.jpg",
+        dir + "posz.jpg",
+        dir + "negz.jpg"
     };
     int width; // on va charger des jpg pour la cubemap on a besoin de la largeur
     int height; // la hauteur
@@ -484,12 +510,13 @@ bool Scene::init_shaders_wave() {
 
 void Scene::anim_bunny() {
     GLint anim_time_location;
-    glUseProgram(compute_program_id);
-    anim_time_location = glGetUniformLocation(compute_program_id, "anim_time");
-    if (timestop)
-        glUniform1f(anim_time_location, 0);
-    else
-        glUniform1f(anim_time_location, anim_time);
+    glUseProgram(compute_program_id);TEST_OPENGL_ERROR();
+    anim_time_location = glGetUniformLocation(compute_program_id, "anim_time");TEST_OPENGL_ERROR();
+    if (timestop) {
+        glUniform1f(anim_time_location, 0);TEST_OPENGL_ERROR();
+    } else {
+        glUniform1f(anim_time_location, anim_time);TEST_OPENGL_ERROR();
+    }
     glBindVertexArray(bunny_vao_id);TEST_OPENGL_ERROR();
     glUseProgram(compute_program_id);TEST_OPENGL_ERROR();
     glDispatchCompute(vertex_buffer_data.size() / (3 * 1024) + 1, 1, 1);TEST_OPENGL_ERROR();

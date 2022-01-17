@@ -10,9 +10,9 @@ layout(location=1) out vec4 bright_parts;
 vec3 light_position = vec3(10.0, 10.0, 50.0);
 
 uniform vec3 camera_pos;
-uniform samplerCube cubemap;
 
-float thresh = 0.8;
+uniform samplerCube cubemap;
+uniform sampler1D threshold;
 
 void main() {
     vec3 i = normalize(fr_position - camera_pos);
@@ -20,4 +20,6 @@ void main() {
     float diffuse = clamp(dot(normalize(light_position - fr_position), normalize(fr_normal)) + 0.1, 0.0, 1.0);
     vec4 reflection = texture(cubemap, r);
     output_color = diffuse * vec4(geo_color, 1.0) * 0.1 + 0.9 * reflection;
+    float luminance = dot(output_color.rgb, vec3(0.299, 0.587, 0.114));
+    bright_parts = output_color * texture(threshold, luminance).r;
 }

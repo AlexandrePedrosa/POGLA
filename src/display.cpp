@@ -4,6 +4,7 @@
 
 #include "display.hh"
 #include "scene.hh"
+#include "renderer.hh"
 #include "test_opengl_error.hh"
 
 
@@ -75,6 +76,8 @@ void give_uniform_bunny(GLuint program, mygl::matrix4 proj) {
     glUniformMatrix4fv(proj_loc, 1, GL_FALSE, proj.ptr()); TEST_OPENGL_ERROR();
     int cam_loc = glGetUniformLocation(program, "camera_pos");TEST_OPENGL_ERROR();
     glUniform3fv(cam_loc, 1, scene.camera_pos.data());TEST_OPENGL_ERROR();
+    int thresh_loc = glGetUniformLocation(program, "threshold");TEST_OPENGL_ERROR();
+    glUniform1i(thresh_loc, 1);TEST_OPENGL_ERROR();
 }
 
 void give_uniform_skybox(GLuint program, mygl::matrix4 proj) {
@@ -82,13 +85,14 @@ void give_uniform_skybox(GLuint program, mygl::matrix4 proj) {
     glUniformMatrix4fv(view_loc, 1, GL_FALSE, scene.view.ptr());TEST_OPENGL_ERROR();
     int proj_loc = glGetUniformLocation(program, "projection_matrix");TEST_OPENGL_ERROR();
     glUniformMatrix4fv(proj_loc, 1, GL_FALSE, proj.ptr());TEST_OPENGL_ERROR();
+    int thresh_loc = glGetUniformLocation(program, "threshold");TEST_OPENGL_ERROR();
+    glUniform1i(thresh_loc, 1);TEST_OPENGL_ERROR();
     //int cam_loc = glGetUniformLocation(program, "camera_pos");TEST_OPENGL_ERROR();
     //glUniform3fv(cam_loc, 1, scene.camera_pos.data());TEST_OPENGL_ERROR();
 }
 
 void display_bunny() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);TEST_OPENGL_ERROR();
-
     const int height = glutGet(GLUT_WINDOW_HEIGHT); TEST_OPENGL_ERROR();
     const int width = glutGet(GLUT_WINDOW_WIDTH); TEST_OPENGL_ERROR();
     const float ratio = float(width) / float(height);
@@ -98,11 +102,17 @@ void display_bunny() {
     const float zoom = 0.035f;
     frustum(proj, -zoom * ratio, zoom * ratio, -zoom, zoom, 0.1f, 100.0f);
 
-    glDepthMask(GL_FALSE); // on desactive la depth pour que la skybox s'affiche derriere tout
+    glBindFramebuffer(GL_FRAMEBUFFER, renderer.color_FBO);TEST_OPENGL_ERROR();
+    glViewport(0, 0, width, height);TEST_OPENGL_ERROR();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);TEST_OPENGL_ERROR();
+    glDepthMask(GL_FALSE);TEST_OPENGL_ERROR(); // on desactive la depth pour que la skybox s'affiche derriere tout
     glUseProgram(scene.skybox_prog_id);TEST_OPENGL_ERROR();
     glBindVertexArray(scene.skybox_vao_id);TEST_OPENGL_ERROR();
     give_uniform_skybox(scene.skybox_prog_id, proj);
+    glActiveTexture(GL_TEXTURE0);TEST_OPENGL_ERROR();
     glBindTexture(GL_TEXTURE_CUBE_MAP, scene.cubemap_tex_id);TEST_OPENGL_ERROR();
+    glActiveTexture(GL_TEXTURE1);TEST_OPENGL_ERROR();
+    glBindTexture(GL_TEXTURE_1D, scene.threshold_tex_id); TEST_OPENGL_ERROR();
     glDrawArrays(GL_TRIANGLES, 0, skybox_vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
     glDepthMask(GL_TRUE);
 
@@ -127,6 +137,11 @@ void display_bunny() {
     }
 
     glBindVertexArray(0);TEST_OPENGL_ERROR();
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.color_FBO);
+    glReadBuffer(GL_COLOR_ATTACHMENT1);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
+    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     glutSwapBuffers();TEST_OPENGL_ERROR();
 }
 

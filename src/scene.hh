@@ -51,6 +51,7 @@ public:
     mygl::matrix4 view;
     GLfloat anim_time;
     GLuint cubemap_tex_id;
+    GLuint threshold_tex_id;
 
     mygl::point3 camera_pos = mygl::point3(0.0f, 1.0f, 5.0f);
     GLfloat camera_angle;
@@ -70,6 +71,7 @@ private:
     bool init_shader_tessel(std::string geometry, GLuint *program_id);
     bool init_shader_skybox(GLuint *program_id);
     bool init_cubemap_texture();
+    bool init_threshold_texture();
     void init_object_vbo_bunnywave();
     void init_object_vbo_skybox();
     bool init_shaders_bunny();

@@ -9,6 +9,7 @@
 #include "scene.hh"
 #include "test_opengl_error.hh"
 #include "display.hh"
+#include "renderer.hh"
 
 int last_x, last_y; // we keep the last mouse position for dragging
 
@@ -116,6 +117,7 @@ int main(int argc, char *argv[]) {
     if (!scene.init_scene_elements()) {
         std::exit(-1);
     }
+    renderer.init_render_elements();
     glPatchParameteri(GL_PATCH_VERTICES, 4);TEST_OPENGL_ERROR();
     glutTimerFunc(16, timer_bunny, 0);
     glutMouseFunc(click_callback);
