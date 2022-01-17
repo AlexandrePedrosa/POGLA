@@ -117,6 +117,10 @@ bool Renderer::init_shader_blur() {
 
 }
 
+void Renderer::switch_bloom() {
+    bloom = !bloom;
+}
+
 bool Renderer::init_shader_sum() {
     std::string compute_src = load("compute_sum.shd");
     GLuint shader_id;

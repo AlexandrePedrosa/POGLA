@@ -141,20 +141,20 @@ void display_bunny() {
         glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
     }
     glBindVertexArray(0);TEST_OPENGL_ERROR();
+    if (renderer.bloom) {
+        glUseProgram(renderer.blur_prog_id[0]);TEST_OPENGL_ERROR();
+        glDispatchCompute(width / 1024 + 1, height, 1);TEST_OPENGL_ERROR();
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
+        glUseProgram(renderer.blur_prog_id[1]);TEST_OPENGL_ERROR();
+        glDispatchCompute(width, height / 1024 + 1, 1);TEST_OPENGL_ERROR();
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
 
-    glUseProgram(renderer.blur_prog_id[0]);TEST_OPENGL_ERROR();
-    glDispatchCompute(width / 1024 + 1, height, 1); TEST_OPENGL_ERROR();
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
-    glUseProgram(renderer.blur_prog_id[1]);TEST_OPENGL_ERROR();
-    glDispatchCompute(width, height / 1024 + 1, 1); TEST_OPENGL_ERROR();
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
-
-    glUseProgram(renderer.sum_prog_id);TEST_OPENGL_ERROR();
-    giveUniform1f(renderer.sum_prog_id, "w1", 1);
-    giveUniform1f(renderer.sum_prog_id, "w2", 1);
-    glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
-
+        glUseProgram(renderer.sum_prog_id);TEST_OPENGL_ERROR();
+        giveUniform1f(renderer.sum_prog_id, "w1", 1);
+        giveUniform1f(renderer.sum_prog_id, "w2", 1);
+        glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
+    }
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.color_FBO);
     glReadBuffer(GL_COLOR_ATTACHMENT0);

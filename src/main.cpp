@@ -73,16 +73,10 @@ void click_callback(int button, int state, int x, int y) {
 void keyboard_callback(unsigned char key, int x, int y) {
     (void) x;
     (void) y;
-    if (key == 'b') // switch or reset to bunny
+    if (key == 'r') // switch or reset to bunny
         scene.switch_bunny();
-    else if (key == 'w') // switch or reset to wave
-        scene.switch_wave();
-    else if (key == 'p') //switch to points / triangles
-        scene.switch_points();
-    else if (key == 'n') //switch normals on/off
-        scene.switch_normals();
-    else if (key == 'a') // switch angora on/off
-        scene.switch_angora();
+    else if (key == 'b') // switch or reset to wave
+        renderer.switch_bloom();
     else if (key == 't') // timestop
         scene.switch_timestop();
     glutPostRedisplay();
