@@ -2,8 +2,8 @@
 
 layout(local_size_x = 1024, local_size_y = 1) in;
 
-layout(rgba8ui, binding = 0) uniform uimage2D input_image;
-layout(rgba8ui, binding = 1) uniform uimage2D output_image;
+layout(rgba8ui, binding = 1) uniform uimage2D input_image;
+layout(rgba8ui, binding = 0) uniform uimage2D output_image;
 
 shared uvec4 scanline[1024];
 
@@ -12,7 +12,7 @@ void main() {
     scanline[pos.x % 1024] = imageLoad(input_image, pos);
     barrier();
 
-    uvec4 result = scanline[pos.x] / 7; // on met des poids pour faire un effet "flou gaussien"
+    uvec4 result = scanline[pos.x % 1024] / 7; // on met des poids pour faire un effet "flou gaussien"
     for (int i = 1; i < 5; i++) {
         result += scanline[min(pos.x % 1024 + i, 1023)] / 7;
         result += scanline[max(pos.x % 1024 - i, 0)] / 7;
