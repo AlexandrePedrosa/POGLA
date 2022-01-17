@@ -91,6 +91,11 @@ void give_uniform_skybox(GLuint program, mygl::matrix4 proj) {
     //glUniform3fv(cam_loc, 1, scene.camera_pos.data());TEST_OPENGL_ERROR();
 }
 
+void giveUniform1f(GLuint program, std::string name, GLfloat data) {
+    int loc = glGetUniformLocation(program, name.c_str());TEST_OPENGL_ERROR();
+    glUniform1f(loc, data);TEST_OPENGL_ERROR();
+}
+
 void display_bunny() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);TEST_OPENGL_ERROR();
     const int height = glutGet(GLUT_WINDOW_HEIGHT); TEST_OPENGL_ERROR();
@@ -144,8 +149,15 @@ void display_bunny() {
     glDispatchCompute(width, height / 1024 + 1, 1); TEST_OPENGL_ERROR();
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
 
+    glUseProgram(renderer.sum_prog_id);TEST_OPENGL_ERROR();
+    giveUniform1f(renderer.sum_prog_id, "w1", 1);
+    giveUniform1f(renderer.sum_prog_id, "w2", 1);
+    glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
+
+
     glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.color_FBO);
-    glReadBuffer(GL_COLOR_ATTACHMENT1);
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
     glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);

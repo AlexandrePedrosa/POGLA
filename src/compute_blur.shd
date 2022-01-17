@@ -14,8 +14,8 @@ void main() {
 
     vec4 result = scanline[pos.x % 1024] * weight[0];
     for (int i = 1; i < 5; i++) {
-        result += scanline[min(pos.x % 1024 + i, 1023)] * weight[i];
-        result += scanline[max(pos.x % 1024 - i, 0)] * weight[i];
+        result += scanline[min(pos.x % 1024 + 2 * i, 1023)] * weight[i];
+        result += scanline[max(pos.x % 1024 - 2 * i, 0)] * weight[i];
     }
     imageStore(output_image, pos.xy, result);
 }
