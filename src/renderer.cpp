@@ -37,11 +37,11 @@ void Renderer::init_color_FBO() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);TEST_OPENGL_ERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);TEST_OPENGL_ERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);TEST_OPENGL_ERROR();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,
-                     0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);TEST_OPENGL_ERROR();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height,
+                     0, GL_RGBA, GL_FLOAT, nullptr);TEST_OPENGL_ERROR();
         // on lie les deux textures aux color attachments
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, color_buffer_textures[i], 0);TEST_OPENGL_ERROR();
-        glBindImageTexture(i, color_buffer_textures[i], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA8UI);
+        glBindImageTexture(i, color_buffer_textures[i], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     }
     // on genere le depth buffer
     glGenRenderbuffers(1, &depth_buffer);TEST_OPENGL_ERROR();

@@ -139,10 +139,10 @@ void display_bunny() {
 
     glUseProgram(renderer.blur_prog_id[0]);TEST_OPENGL_ERROR();
     glDispatchCompute(width / 1024 + 1, height, 1); TEST_OPENGL_ERROR();
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    glUseProgram(renderer.blur_prog_id[1]);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
+    glUseProgram(renderer.blur_prog_id[1]);TEST_OPENGL_ERROR();
     glDispatchCompute(width, height / 1024 + 1, 1); TEST_OPENGL_ERROR();
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.color_FBO);
     glReadBuffer(GL_COLOR_ATTACHMENT1);
