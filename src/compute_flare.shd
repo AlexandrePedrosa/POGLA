@@ -1,0 +1,31 @@
+#version 450
+
+layout(local_size_x = 32, local_size_y = 32) in;
+
+layout(rgba32f, binding = 1) uniform image2D input_image;
+layout(rgba32f, binding = 2) uniform image2D output_image;
+
+uniform int width;
+uniform int height;
+uniform float ghost_dispersal;
+uniform int nb_ghosts;
+
+void main() {
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 ghost_pos = -pos + ivec2(width, height);
+
+    ivec2 ghost_vec = ivec2((ivec2(width / 2, height / 2) - ghost_pos) * ghost_dispersal);
+
+    vec4 result = vec4(0.0, 0.0, 0.0, 1.0);
+    for (int i = 1; i < nb_ghosts; i++) {
+        // on va chercher l'image fantome
+        ivec2 offset = ivec2((ghost_pos.x + ghost_vec.x * i) % width, (ghost_pos.y + ghost_vec.y * i) % height);
+        // on met un poids, plus l'element sera au centre de l'ecran plus il genrera des fantomes intenses et visibles.
+        float weight = length((vec2(width / 2.0, height / 2.0) - vec2(offset)) / length(vec2(width / 2.0, height / 2.0)));
+        weight = pow(1.0 - weight, 30.0);
+
+        result += imageLoad(input_image, offset) * weight;
+    }
+
+    imageStore(output_image, pos.xy, result);
+}
