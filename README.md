@@ -1,19 +1,14 @@
-# POGLA TP1, 2 et 3
+# POGLA Projet bloom et Lens Flare
 
-Ce programme reuni les features des trois TP de pogla.  
 utilisation:
+Vous devez mettre des jpg de skybox dans /textures/yokohama pour que le programme fonctionne tel quel.
 - compilation  
 $ make
 - execution  
 $ ./main
 - dans le programme:
-    - 'b' comme 'bunny' pour l'animation du lapin
-    - 'w' comme 'wave' pour l'animation de la vague
-    - 'n' comme 'normals' pour afficher ou non les normales
-    - 'a' comme 'angora' pour afficher ou non de la fourrure (plus d'interet sur le lapin mais possible sur la vague)
-    - 'p' comme 'points' pour passer de l'affichage de la surface en triangle vers les points et vice versa
+    - 'b' comme 'bloom' pour activer/desactiver le bloom
     - 't' comme 'timestop' pour arreter ou relancer le cours du temps
-    - clique gauche et glisser pour tourner la scene  
-petit bug non resolu: Quand on tourne le lapin et que le temps n'est pas arrete la valeur de gonflement va bugger,
-le lapin va soit trop gonfler soit se ratatiner. Pour lui faire retrouver sa forme, vous pouver reinitialiser son
-animation en rappuyant sur 'b'.
+    - 'r' comme 'reset' pour reinitialiser l'animation du lapin
+    - clique gauche et glisser pour tourner la camera
+    - fleches directionnelles pour deplacer la camera
