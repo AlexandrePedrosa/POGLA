@@ -10,6 +10,7 @@
 #include "matrix4.hh"
 #include "bunny.hh"
 #include "skybox.hh"
+#include "shader.hh"
 
 static const std::vector<GLfloat> wave_vertex_buffer_data {
         -0.5, 0.0, +0.5,
@@ -42,10 +43,10 @@ public:
     GLuint skybox_vao_id;
 
     GLuint ssbo_ids[2];
-    GLuint bunny_prog_id[4];
-    GLuint wave_prog_id[4];
-    GLuint skybox_prog_id;
-    GLuint compute_program_id;
+    Program bunny_prog[4];
+    Program wave_prog[4];
+    Program skybox_program;
+    Program compute_program;
 
     mygl::matrix4 model;
     mygl::matrix4 view;
@@ -66,10 +67,10 @@ public:
     bool angora = false;
     bool timestop = true;
 private:
-    bool init_shader_compute(GLuint *program_id);
-    bool init_shader_bunny(std::string geometry, GLuint *program_id);
-    bool init_shader_tessel(std::string geometry, GLuint *program_id);
-    bool init_shader_skybox(GLuint *program_id);
+    bool init_shader_compute(Program &prog);
+    bool init_shader_bunny(std::string geometry, Program &prog);
+    bool init_shader_tessel(std::string geometry, Program &prog);
+    bool init_shader_skybox(Program &prog);
     bool init_cubemap_texture();
     bool init_threshold_texture();
     void init_object_vbo_bunnywave();

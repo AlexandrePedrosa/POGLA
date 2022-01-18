@@ -75,7 +75,7 @@ void keyboard_callback(unsigned char key, int x, int y) {
     (void) y;
     if (key == 'r') // switch or reset to bunny
         scene.switch_bunny();
-    else if (key == 'b') // switch or reset to wave
+    else if (key == 'b') // trigger bloom
         renderer.switch_bloom();
     else if (key == 't') // timestop
         scene.switch_timestop();
