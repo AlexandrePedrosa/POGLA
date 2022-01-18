@@ -96,6 +96,11 @@ void giveUniform1f(GLuint program, std::string name, GLfloat data) {
     glUniform1f(loc, data);TEST_OPENGL_ERROR();
 }
 
+void giveUniform1i(GLuint program, std::string name, GLfloat data) {
+    int loc = glGetUniformLocation(program, name.c_str());TEST_OPENGL_ERROR();
+    glUniform1i(loc, data);TEST_OPENGL_ERROR();
+}
+
 void display_bunny() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);TEST_OPENGL_ERROR();
     const int height = glutGet(GLUT_WINDOW_HEIGHT); TEST_OPENGL_ERROR();
@@ -141,6 +146,25 @@ void display_bunny() {
         glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
     }
     glBindVertexArray(0);TEST_OPENGL_ERROR();
+    if (renderer.lensflare) {
+        glUseProgram(renderer.flare_prog_id);TEST_OPENGL_ERROR();
+        giveUniform1i(renderer.flare_prog_id, "width", width);
+        giveUniform1i(renderer.flare_prog_id, "height", height);
+        giveUniform1f(renderer.flare_prog_id, "ghost_dispersal", 0.37);
+        giveUniform1i(renderer.flare_prog_id, "nb_ghosts", 8);
+        glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
+
+        glBindImageTexture(1, renderer.color_buffer_textures[2], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+        glUseProgram(renderer.sum_prog_id);TEST_OPENGL_ERROR();
+        giveUniform1f(renderer.sum_prog_id, "w1", 1);
+        giveUniform1f(renderer.sum_prog_id, "w2", 1);
+        glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
+
+        glBindImageTexture(1, renderer.color_buffer_textures[1], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    }
     if (renderer.bloom) {
         renderer.blur_prog[0].use();
         glDispatchCompute(width / 1024 + 1, height, 1);TEST_OPENGL_ERROR();
@@ -155,6 +179,8 @@ void display_bunny() {
         glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
     }
+
+
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.color_FBO);
     glReadBuffer(GL_COLOR_ATTACHMENT0);

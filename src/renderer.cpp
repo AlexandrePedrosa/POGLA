@@ -13,7 +13,8 @@ bool Renderer::init_render_elements() {
 
     init_color_FBO();
     if (!init_shader_blur() ||
-        !init_shader_sum())
+        !init_shader_sum() ||
+        !init_shader_flare())
         return false;
     return true;
 }
@@ -70,6 +71,63 @@ bool Renderer::init_shader_blur() {
 
 void Renderer::switch_bloom() {
     bloom = !bloom;
+}
+
+bool Renderer::init_shader_flare() {
+    std::string compute_src = load("compute_flare.shd");
+    GLuint shader_id;
+    GLint compile_status = GL_TRUE;
+
+    char *compute_shd_src = (char*)std::malloc(compute_src.length()*sizeof(char));
+
+    compute_src.copy(compute_shd_src, compute_src.length());
+    shader_id = glCreateShader(GL_COMPUTE_SHADER); TEST_OPENGL_ERROR();
+    glShaderSource(shader_id, 1, (const GLchar**)&(compute_shd_src), 0);TEST_OPENGL_ERROR();
+
+    glCompileShader(shader_id);TEST_OPENGL_ERROR();
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &compile_status); TEST_OPENGL_ERROR();
+    if(compile_status != GL_TRUE) {
+        GLint log_size;
+        char *shader_log;
+        glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &log_size);
+        shader_log = (char*)std::malloc(log_size+1); /* +1 pour le caractere de fin de chaine '\0' */
+        if(shader_log != 0) {
+            glGetShaderInfoLog(shader_id, log_size, &log_size, shader_log);
+            std::cerr << "SHADER COMPUTE: " << shader_log << std::endl;
+            std::free(shader_log);
+        }
+        std::free(compute_shd_src);
+        glDeleteShader(shader_id);
+        return false;
+    }
+    std::free(compute_shd_src);
+
+    GLint link_status=GL_TRUE;
+    flare_prog_id = glCreateProgram();TEST_OPENGL_ERROR();
+    if (flare_prog_id == 0) return false;
+    glAttachShader(flare_prog_id, shader_id);TEST_OPENGL_ERROR();
+
+    glLinkProgram(flare_prog_id);TEST_OPENGL_ERROR();
+    glGetProgramiv(flare_prog_id, GL_LINK_STATUS, &link_status);
+    if (link_status!=GL_TRUE) {
+        GLint log_size;
+        char *program_log;
+        glGetProgramiv(flare_prog_id, GL_INFO_LOG_LENGTH, &log_size);
+        program_log = (char*)std::malloc(log_size+1); /* +1 pour le caractere de fin de chaine '\0' */
+        if(program_log != 0) {
+            glGetProgramInfoLog(flare_prog_id, log_size, &log_size, program_log);
+            std::cerr << "Program " << program_log << std::endl;
+            std::free(program_log);
+        }
+        glDeleteProgram(flare_prog_id);TEST_OPENGL_ERROR();
+        glDeleteShader(shader_id);TEST_OPENGL_ERROR();
+        flare_prog_id = 0;
+        return false;
+    }
+    glUseProgram(flare_prog_id);TEST_OPENGL_ERROR();
+    return true;
+
+
 }
 
 bool Renderer::init_shader_sum() {

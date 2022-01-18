@@ -17,10 +17,13 @@ public:
     unsigned int depth_buffer; // le depth buffer utilise pour le premier rendu
     Program blur_prog[2];
     Program sum_prog;
+    GLuint flare_prog_id;
     bool bloom = true;
+    bool lensflare = true;
 private:
     void init_color_FBO();
     bool init_shader_blur();
+    bool init_shader_flare();
     bool init_shader_sum();
 };
 
