@@ -59,7 +59,7 @@ bool Scene::init_threshold_texture() {
 bool Scene::init_cubemap_texture() { // cree la cubemap
     glGenTextures(1, &cubemap_tex_id); // on cree la texture
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_tex_id); // c'est une cubemap
-    std::string dir = "texture/"; // on peut changer la skybox facilement
+    std::string dir = "texture/yokohama/"; // on peut changer la skybox facilement
     std::vector<std::string> filenames { // texture de Emil Persson
         dir + "posx.jpg",
         dir + "negx.jpg",
