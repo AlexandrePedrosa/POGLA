@@ -95,6 +95,7 @@ bool Scene::init_cubemap_texture() { // cree la cubemap
     return true;
 }
 
+
 void Scene::init_object_vbo_skybox() {
     GLuint vbo_id;
 

@@ -146,13 +146,14 @@ void display_bunny() {
         glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
     }
     glBindVertexArray(0);TEST_OPENGL_ERROR();
+
     if (renderer.lensflare) {
         glUseProgram(renderer.flare_prog_id);TEST_OPENGL_ERROR();
         giveUniform1i(renderer.flare_prog_id, "width", width);
         giveUniform1i(renderer.flare_prog_id, "height", height);
         giveUniform1f(renderer.flare_prog_id, "ghost_dispersal", 0.37);
         giveUniform1i(renderer.flare_prog_id, "nb_ghosts", 8);
-        glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
+        //glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
 
         glBindImageTexture(1, renderer.color_buffer_textures[2], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);

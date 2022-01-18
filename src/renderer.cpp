@@ -19,6 +19,24 @@ bool Renderer::init_render_elements() {
     return true;
 }
 
+void Renderer::init_object_vbo_quad() {
+    GLuint vbo_id;
+
+    GLint vertex_location = glGetAttribLocation(flare_prog_id, "position");TEST_OPENGL_ERROR();
+    glGenVertexArrays(1, &quad_vao_id);TEST_OPENGL_ERROR();
+    glBindVertexArray(quad_vao_id);TEST_OPENGL_ERROR();
+    glGenBuffers(1, &vbo_id);TEST_OPENGL_ERROR();
+    if (vertex_location!=-1) {
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_id);TEST_OPENGL_ERROR();
+        glBufferData(GL_ARRAY_BUFFER, quad_vertex_buffer_data.size()*sizeof(float),
+                     quad_vertex_buffer_data.data(), GL_STATIC_DRAW);TEST_OPENGL_ERROR();
+        glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, 0);TEST_OPENGL_ERROR();
+        glEnableVertexAttribArray(vertex_location);TEST_OPENGL_ERROR();
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
+    glBindVertexArray(0);
+}
+
 void Renderer::init_color_FBO() {
     /*
     ** On va rendre les couleurs dans 2 color attachments un pour le rendu de base et l'autre ou on ne conservera que
