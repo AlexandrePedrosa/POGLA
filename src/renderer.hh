@@ -5,6 +5,8 @@
 #ifndef POGLA_RENDERER_HH
 #define POGLA_RENDERER_HH
 
+#include "shader.hh"
+
 static const std::vector<GLfloat> quad_vertex_buffer_data {
         1.0, 1.0, 0.0,
         -1.0, 1.0, 0.0,
@@ -21,11 +23,11 @@ public:
     unsigned int color_buffer_textures[3]; // les trois textures utilisees pour les pre-rendus
     unsigned int depth_buffer; // le depth buffer utilise pour le premier rendu
 
-    GLuint blur_prog_id[2];
-    GLuint sum_prog_id;
-    GLuint flare_prog_id;
-
     GLuint quad_vao_id;
+
+    Program blur_prog[2];
+    Program sum_prog;
+    Program flare_prog;
 
     bool bloom = true;
     bool lensflare = true;

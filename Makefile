@@ -13,23 +13,21 @@ CPP_FILES += src/OBJloader.cpp
 CPP_FILES += src/scene.cpp
 CPP_FILES += src/display.cpp
 CPP_FILES += src/renderer.cpp
-CPP_FILES += src/load_shader.cpp
+CPP_FILES += src/shader.cpp
 HXX_FILES = src/bunny.hh
 HXX_FILES += src/matrix4.hh
 HXX_FILES += src/OBJloader.hh
 HXX_FILES += src/scene.hh
 HXX_FILES += src/display.hh
 HXX_FILES += src/renderer.hh
-HXX_FILES += src/load_shader.hh
+HXX_FILES += src/shader.hh
 OBJ_FILES = $(CPP_FILES:.cpp=.o)
 
 CXX_FLAGS += -Wall -Wextra -O3 -g -std=c++11
 CXX_FLAGS +=
 CXX_FLAGS += -m64 -march=native
 CXX_FLAGS += -fopt-info-vec-optimized #-fopt-info-vec-missed -ftree-vectorize
-#CXX_FLAGS += -I/home/jonathan/work/enseignement/matieres/synthese/prog/opengl/compute_shader/jf_gl_tools/build_head/src
 LDXX_FLAGS = -lGL  -lGLEW -lglut -lGLU -lpthread
-#LDXX_FLAGS += /home/jonathan/work/enseignement/matieres/synthese/prog/opengl/compute_shader/jf_gl_tools/dist_lib/libjfglt.a
 
 MAIN_FILE = src/main.cpp
 DIST = main
