@@ -12,7 +12,7 @@
 #include "skybox.hh"
 #include "shader.hh"
 
-static const std::vector<GLfloat> quad_vertex_buffer_data {
+static const std::vector<GLfloat> wave_vertex_buffer_data {
         -0.5, 0.0, +0.5,
         +0.5, 0.0, +0.5,
         +0.5, 0.0, -0.5,

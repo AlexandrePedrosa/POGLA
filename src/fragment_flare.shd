@@ -1,0 +1,31 @@
+#version 450
+
+in vec2 pos;
+
+uniform float ghost_dispersal;
+uniform int nb_ghosts;
+
+uniform sampler2D input_tex;
+
+layout(location=2) out vec4 output_color;
+
+void main() {
+    vec2 ghost_coord = -pos + vec2(1.0);
+
+    vec2 ghost_vec = (vec2(0.5) - ghost_coord) * ghost_dispersal;
+
+    vec4 result = vec4(0.0);
+    for (int i = 1; i <= nb_ghosts; i++) {
+        // on va chercher l'image fantome
+        vec2 offset = fract(ghost_coord + ghost_vec * float(i));
+        // on met un poids, plus l'element sera au centre de l'ecran plus il genrera des fantomes intenses et visibles.
+        float weight = length((vec2(0.5) - offset) / length(vec2(0.5)));
+        weight = pow(1.0 - weight, 30.0);
+
+        weight = 1;
+
+        result += texture(input_tex, offset) * weight;
+    }
+
+    output_color = result;
+}

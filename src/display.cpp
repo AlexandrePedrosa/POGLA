@@ -127,25 +127,13 @@ void display_bunny() {
     glDepthMask(GL_TRUE);
 
     glBindVertexArray(scene.bunny_vao_id);TEST_OPENGL_ERROR();
-    if (!scene.points) {
-        scene.bunny_prog[0].use();
-        give_uniform_bunny(scene.bunny_prog[0].id, proj);
-        glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
-    } else {
-        scene.bunny_prog[2].use();
-        give_uniform_bunny(scene.bunny_prog[2].id, proj);
-        glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
-    }
-    if (scene.normals) {
-        scene.bunny_prog[1].use();
-        give_uniform_bunny(scene.bunny_prog[1].id, proj);
-        glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
-    } else if (scene.angora) {
-        scene.bunny_prog[3].use();
-        give_uniform_bunny(scene.bunny_prog[3].id, proj);
-        glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
-    }
-    glBindVertexArray(0);TEST_OPENGL_ERROR();
+
+    scene.bunny_prog[0].use();
+    give_uniform_bunny(scene.bunny_prog[0].id, proj);
+    glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
+
+    glDepthMask(GL_FALSE);TEST_OPENGL_ERROR(); // on desactive la depth pour que la skybox s'affiche derriere tout
+    glBindVertexArray(renderer.quad_vao_id);TEST_OPENGL_ERROR();
 
     renderer.blur_prog[0].use();
     glDispatchCompute(width / 1024 + 1, height, 1);TEST_OPENGL_ERROR();
@@ -162,13 +150,16 @@ void display_bunny() {
     }
     if (renderer.lensflare) {
         renderer.flare_prog.use();
-        giveUniform1i(renderer.flare_prog.id, "width", width);
-        giveUniform1i(renderer.flare_prog.id, "height", height);
-        giveUniform1f(renderer.flare_prog.id, "ghost_dispersal", 0.37);
-        giveUniform1i(renderer.flare_prog.id, "nb_ghosts", 8);
-        glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
-        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, renderer.color_buffer_textures[1]);
+        giveUniform1i(renderer.flare_prog.id, "input_tex",0);
+
+        giveUniform1f(renderer.flare_prog.id, "ghost_dispersal", 0.37);
+        giveUniform1i(renderer.flare_prog.id, "nb_ghosts", 3);
+
+        glDrawArrays(GL_TRIANGLES, 0, quad_vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
+        //glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
         glBindImageTexture(1, renderer.color_buffer_textures[2], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
         renderer.sum_prog.use();
@@ -180,7 +171,8 @@ void display_bunny() {
         glBindImageTexture(1, renderer.color_buffer_textures[1], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     }
 
-
+    glDepthMask(GL_TRUE);
+    glBindVertexArray(0);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.color_FBO);
     glReadBuffer(GL_COLOR_ATTACHMENT0);

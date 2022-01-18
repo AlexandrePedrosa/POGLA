@@ -16,13 +16,14 @@ bool Renderer::init_render_elements() {
         !init_shader_sum() ||
         !init_shader_flare())
         return false;
+    init_object_vbo_quad();
     return true;
 }
 
 void Renderer::init_object_vbo_quad() {
     GLuint vbo_id;
 
-    GLint vertex_location = glGetAttribLocation(flare_prog_id, "position");TEST_OPENGL_ERROR();
+    GLint vertex_location = glGetAttribLocation(flare_prog.id, "position");TEST_OPENGL_ERROR();
     glGenVertexArrays(1, &quad_vao_id);TEST_OPENGL_ERROR();
     glBindVertexArray(quad_vao_id);TEST_OPENGL_ERROR();
     glGenBuffers(1, &vbo_id);TEST_OPENGL_ERROR();
@@ -91,8 +92,13 @@ void Renderer::switch_bloom() {
     bloom = !bloom;
 }
 
+void Renderer::switch_flare() {
+    lensflare = !lensflare;
+}
+
 bool Renderer::init_shader_flare() {
-    if (!flare_prog.add_shader("compute_flare.shd", GL_COMPUTE_SHADER))
+    if (!flare_prog.add_shader("vertex.shd", GL_VERTEX_SHADER) ||
+        !flare_prog.add_shader("fragment_flare.shd", GL_FRAGMENT_SHADER))
         return false;
 
     if (!flare_prog.link())
