@@ -96,6 +96,11 @@ void giveUniform1f(GLuint program, std::string name, GLfloat data) {
     glUniform1f(loc, data);TEST_OPENGL_ERROR();
 }
 
+void giveUniform4f(GLuint program, std::string name, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) {
+    int loc = glGetUniformLocation(program, name.c_str());TEST_OPENGL_ERROR();
+    glUniform4f(loc, v0, v1, v2, v3);TEST_OPENGL_ERROR();
+}
+
 void giveUniform1i(GLuint program, std::string name, GLfloat data) {
     int loc = glGetUniformLocation(program, name.c_str());TEST_OPENGL_ERROR();
     glUniform1i(loc, data);TEST_OPENGL_ERROR();
@@ -113,8 +118,9 @@ void display_bunny() {
     frustum(proj, -zoom * ratio, zoom * ratio, -zoom, zoom, 0.1f, 100.0f);
 
     glBindFramebuffer(GL_FRAMEBUFFER, renderer.color_FBO);TEST_OPENGL_ERROR();
-    //glViewport(0, 0, width, height);TEST_OPENGL_ERROR();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);TEST_OPENGL_ERROR();
+
+    //skybox
     glDepthMask(GL_FALSE);TEST_OPENGL_ERROR(); // on desactive la depth pour que la skybox s'affiche derriere tout
     scene.skybox_program.use();
     glBindVertexArray(scene.skybox_vao_id);TEST_OPENGL_ERROR();
@@ -126,14 +132,21 @@ void display_bunny() {
     glDrawArrays(GL_TRIANGLES, 0, skybox_vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
     glDepthMask(GL_TRUE);
 
+    //bunny
     glBindVertexArray(scene.bunny_vao_id);TEST_OPENGL_ERROR();
-
     scene.bunny_prog[0].use();
     give_uniform_bunny(scene.bunny_prog[0].id, proj);
     glDrawArrays(GL_TRIANGLES, 0, vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
 
-    glDepthMask(GL_FALSE);TEST_OPENGL_ERROR(); // on desactive la depth pour que la skybox s'affiche derriere tout
+    glBindFramebuffer(GL_FRAMEBUFFER, renderer.effects_FBO);
+    renderer.threshold_prog.use();
     glBindVertexArray(renderer.quad_vao_id);TEST_OPENGL_ERROR();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, renderer.color_buffer);
+    giveUniform1i(renderer.threshold_prog.id, "input_tex", 0);
+    giveUniform4f(renderer.threshold_prog.id, "color_bias", -0.8, -0.8, -0.8, 0.0);
+    giveUniform4f(renderer.threshold_prog.id, "color_scale", 5.0, 5.0, 5.0, 1.0);
+    glDrawArrays(GL_TRIANGLES, 0, quad_vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
 
     renderer.blur_prog[0].use();
     glDispatchCompute(width / 1024 + 1, height, 1);TEST_OPENGL_ERROR();
@@ -152,15 +165,15 @@ void display_bunny() {
         renderer.flare_prog.use();
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, renderer.color_buffer_textures[1]);
+        glBindTexture(GL_TEXTURE_2D, renderer.effects_buffers[0]);
         giveUniform1i(renderer.flare_prog.id, "input_tex",0);
 
         giveUniform1f(renderer.flare_prog.id, "ghost_dispersal", 0.37);
-        giveUniform1i(renderer.flare_prog.id, "nb_ghosts", 3);
+        giveUniform1i(renderer.flare_prog.id, "nb_ghosts", 7);
 
         glDrawArrays(GL_TRIANGLES, 0, quad_vertex_buffer_data.size()/3);TEST_OPENGL_ERROR();
         //glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
-        glBindImageTexture(1, renderer.color_buffer_textures[2], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        glBindImageTexture(1, renderer.effects_buffers[1], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
         renderer.sum_prog.use();
         giveUniform1f(renderer.sum_prog.id, "w1", 1);
@@ -168,7 +181,7 @@ void display_bunny() {
         glDispatchCompute(width / 32 + 1, height / 32 + 1, 1);TEST_OPENGL_ERROR();
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);TEST_OPENGL_ERROR();
 
-        glBindImageTexture(1, renderer.color_buffer_textures[1], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        glBindImageTexture(1, renderer.effects_buffers[0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     }
 
     glDepthMask(GL_TRUE);

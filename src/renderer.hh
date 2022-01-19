@@ -22,23 +22,28 @@ public:
     bool init_render_elements();
     void switch_bloom();
     void switch_flare();
-    unsigned int color_FBO; // le framebuffer du premier rendu
-    unsigned int color_buffer_textures[3]; // les trois textures utilisees pour les pre-rendus
-    unsigned int depth_buffer; // le depth buffer utilise pour le premier rendu
+    GLuint color_FBO; // le framebuffer du premier rendu
+    GLuint effects_FBO;
+    GLuint color_buffer; // les trois textures utilisees pour les pre-rendus
+    GLuint effects_buffers[2];
+    GLuint depth_buffer; // le depth buffer utilise pour le premier rendu
 
     GLuint quad_vao_id;
 
     Program blur_prog[2];
     Program sum_prog;
     Program flare_prog;
+    Program threshold_prog;
 
     bool bloom = true;
     bool lensflare = true;
 private:
     void init_color_FBO();
+    void init_effects_FBO();
     bool init_shader_blur();
     bool init_shader_flare();
     bool init_shader_sum();
+    bool init_shader_threshold();
     void init_object_vbo_quad();
 };
 

@@ -1,0 +1,15 @@
+#version 450
+
+noperspective in vec2 tex_coord;
+
+layout(location=0) out vec4 bright_parts;
+
+uniform vec4 color_scale;
+uniform vec4 color_bias;
+
+uniform sampler2D input_tex;
+
+void main() {
+    //bright_parts = texture(input_tex, tex_coord);
+    bright_parts = max(vec4(0.0), texture(input_tex, tex_coord) + color_bias) * color_scale;
+}
